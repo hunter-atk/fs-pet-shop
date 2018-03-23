@@ -138,6 +138,36 @@ app.patch('/pets/:id', function(req, res) {
   });
 });
 
+app.delete('/pets/:id', function(req, res) {
+  fs.readFile(petsPath, 'utf8', function(err, data) {
+
+    if (err) {
+      console.error(err.stack);
+      return res.sendStatus(500);
+    }
+
+    var petId = Number.parseInt(req.params.id);
+    var pets = JSON.parse(data);
+
+    if (petId < 0 || petId >= pets.length || Number.isNaN(petId)) {
+      return res.sendStatus(404);
+    }
+
+    pets.splice(petId, 1);
+    console.log('bfuckorrh');
+    var newPetsJSON = JSON.stringify(pets);
+    console.log('booyah');
+    fs.writeFile(petsPath, newPetsJSON, function(err) {
+      if (err) {
+        console.error(err.stack);
+        return res.sendStatus(500);
+      }
+      res.set('Content-Type', 'text/plain');
+      res.send(newPetsJSON);
+    });
+  });
+});
+
 app.use(function(req, res) {
   res.sendStatus(404);
 });
