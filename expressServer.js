@@ -115,9 +115,10 @@ app.patch('/pets/:id', function(req, res) {
     reqBodyKeys.forEach(function(x) {
         petsKeys.forEach(function(y){
           if (x == y){
-            pets[petId][y] = req.body[x];
             if (typeof pets[petId][y] === 'string'){
               pets[petId][y] = Number(pets[petId][y]);
+            } else {
+              pets[petId][y] = req.body[x];
             }
           }
         })
