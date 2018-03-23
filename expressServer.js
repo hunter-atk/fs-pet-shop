@@ -102,30 +102,38 @@ app.patch('/pets/:id', function(req, res) {
 
     var petId = Number.parseInt(req.params.id);
     var pets = JSON.parse(data);
-    var petAge = req.body.age;
-    var petKind = req.body.kind;
-    var petName = req.body.name;
 
     if (petId < 0 || petId >= pets.length || Number.isNaN(petId)) {
       return res.sendStatus(404);
     }
 
-    if(!petAge && !petKind && !petName){
-      return res.status(400).send("age=[input] kind=[input] name=[input]");
-    }
+    var petsKeys = Object.keys(pets[petId]);
+    var reqBodyKeys = Object.keys(req.body);
+    console.log(petsKeys);
+    console.log(reqBodyKeys);
 
-    if(petAge){
-      fs.writeFile(petsPath, data, function(err) {
-        if (err) {
-          console.error(err.stack);
-          return res.sendStatus(500);
-        }
+    reqBodyKeys.forEach(function(x) {
+        petsKeys.forEach(function(y){
+          if (x == y){
+            pets[petId][y] = req.body[x];
+            if (typeof pets[petId][y] === 'string'){
+              pets[petId][y] = Number(pets[petId][y]);
+            }
+          }
+        })
+    });
 
-        pets[petId].age = petAge;
-        res.set('Content-Type', 'text/plain');
-        res.send(pets[petId].age);
-      });
-    }
+    let newData = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, newData, function(err) {
+      if (err) {
+        console.error(err.stack);
+        return res.sendStatus(500);
+      }
+
+      res.set('Content-Type', 'text/plain');
+      res.send(pets[petId]);
+    });
   });
 });
 
